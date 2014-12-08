@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 站点解析配置文件
+ 配置哪些网站需要解析
+ 网站内哪些页面是我们所需要的（可通过正则表达式等手段来判断）
+ 不同类型的页面如何抓爬(可通过配置，如果实现不了，可制定解析类)-->
+<octopus>
+<!-- site站点  
+name 名称-->
+<site name="douban">
+	<!-- 站点地址 -->
+	<address>http://www.douban.com/</address>
+	<!-- 需要解析的页面类型集合 -->
+	<page-list>
+		<!-- 相同页面类型配置 
+		url 访问路径 因为相同页面路径构成相似可用正则表达式来判断 -->
+		<page url="">
+			<!-- 如何抓爬 填写类名-->
+			<scratch></scratch>
+		</page>
+	</page-list>
+</site>
+<site name="mtime">
+	<address>http://www.mtime.com/</address>
+</site>
+</octopus>

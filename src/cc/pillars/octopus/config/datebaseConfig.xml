@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 数据库配置 -->
+<!-- 数据库类型mysql -->
+<datebase type="mysql">
+	<!-- 数据库地址 -->
+	<host>localhost</host>
+	<!-- 用户名 -->
+	<user>root</user>
+	<!-- 密码 -->
+	<password>root</password>
+	<!-- 链接的数据库名 -->
+	<db>octopus</db>
+	<!-- 端口默认值3306 -->
+	<port>3306</port>
+	<!-- 还有很多有默认值的配置
+	如果需要可添加 -->
+</datebase>
