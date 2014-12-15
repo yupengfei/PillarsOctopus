@@ -5,6 +5,9 @@ Created on 2014年12月5日
 '''
 from bs4 import BeautifulSoup
 import mysql.connector
+import os
+
+
 class DateBaseConfig:
     '''
     数据库配置文件解析类
@@ -17,11 +20,11 @@ class DateBaseConfig:
     dateBaseType='mysql'
 
 
-    def __init__(self, path):
+    def __init__(self):
         '''
         构造函数，解析配置文件
         '''
-        file = open(path+'/'+DateBaseConfig.fileName)
+        file = open(os.getcwd()+'/config/'+DateBaseConfig.fileName)
         try:
             xmlStr=file.read()
         except IOError as e:
@@ -43,6 +46,8 @@ class DateBaseConfig:
         self.db=soup.find('db').string
         #端口
         self.port=soup.find('port').string
+        #字符集
+        self.charset=soup.find('charset').string
         #如果需要可继续添加或修改
     def createConnect(self):
         '''
@@ -50,7 +55,7 @@ class DateBaseConfig:
         '''
         #如果是mysql数据库
         if DateBaseConfig.dateBaseType=='mysql':
-            con=mysql.connector.connect(user=self.user, password=self.password, host=self.host, database=self.db)
+            con=mysql.connector.connect(user=self.user, password=self.password, host=self.host, database=self.db,charset=self.charset)
             cursor = con.cursor()
             self.con=con
             self.cursor=cursor
@@ -60,11 +65,25 @@ class DateBaseConfig:
         else:
             #如果以上都不符合说明不支持该数据库
             print('不支持该数据库')
-    def execute(self,sql,data):
+    def beachInsert(self,dates):
         '''
-        执行sql语句
+        批量执行插入操作
         '''
-        pass
+        cursor=self.cursor
+        con=self.con
+        for sql,date in dates:
+            cursor.execute(sql,date)
+        con.commit()
+        self.close()
+    def doSelect(self,sql):
+        '''
+        执行查询语句
+        '''
+        cursor=self.cursor
+        cursor.execute(sql)
+        fetchall=cursor.fetchall()
+        self.close()
+        return fetchall
     def close(self):
         '''
         关闭链接
