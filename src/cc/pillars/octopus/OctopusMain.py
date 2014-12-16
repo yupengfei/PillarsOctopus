@@ -12,9 +12,7 @@ from cc.pillars.octopus import scratch
 import os
 import threading
 
-from cc.pillars.octopus.config.DateBaseConfig import DateBaseConfig
 from cc.pillars.octopus.config.SiteConfig import SiteConfig
-from cc.pillars.octopus.scratch.VfxinfoScratch import VfxinfoScratch
 
 
 configFilePath=os.getcwd()+'/config'

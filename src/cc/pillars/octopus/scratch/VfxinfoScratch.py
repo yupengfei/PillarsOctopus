@@ -169,13 +169,22 @@ class VfxinfoScratch(BaseScratch):
             embed=child.find('embed')
             if img!=None:
                 image_url=str(img['data-original'])
-                dates.append(("INSERT INTO page_image(id,parent_id,image_blob,image_url,page_index) VALUES(%s,%s,%s,%s,%s)",(self.getId(),parent_id,self.downLoadPicture(image_url),image_url,self.page_index)))
+                imageblob=self.downLoadPicture(image_url)
+                dates.append(("INSERT INTO page_image(id,parent_id,image_blob,image_url,page_index) VALUES(%s,%s,%s,%s,%s)",(self.getId(),parent_id,imageblob,image_url,self.page_index)))
                 self.page_index+=1
                 return True
             if embed!=None:
                 dates.append(("INSERT INTO page_embed(id,parent_id,embed_html,embed_url,page_index) VALUES(%s,%s,%s,%s,%s)",(self.getId(),parent_id,str(embed),str(embed['src']),self.page_index)))
                 self.page_index+=1
                 return True
+            if child.string==None:
+                if len(child.findAll('b'))!=0:
+                    strP=""
+                    for i in child.findAll('b'):
+                        strP+=str(i.string)
+                    dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(self.getId(),parent_id,strP,self.page_index)))
+                    self.page_index+=1
+                    return True
             if child.string.strip()=='':
                 return True
             dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(self.getId(),parent_id,str(child.string),self.page_index)))

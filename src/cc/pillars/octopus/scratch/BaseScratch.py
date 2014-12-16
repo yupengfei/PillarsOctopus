@@ -3,6 +3,7 @@ Created on Dec 10, 2014
 
 @author: sen
 '''
+import threading
 import time
 import urllib.request
 import uuid
@@ -18,9 +19,12 @@ class BaseScratch:
         '''
         获得一网站上的图片并读取返回二进制流
         '''
+        mutex = threading.Lock()
+        mutex.acquire()
         conn = urllib.request.urlopen(src)
         str=conn.read()
         conn.close()
+        mutex.release()
         return str
         #print(conn.read())        
 
