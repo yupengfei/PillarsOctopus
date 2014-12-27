@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package-list>
+	<!-- 任务包的配置路径 -->
+	<task-package id='1' name='vfxinfo' config_path="/home/pillars/Public/workspace/octopus/src/cc/pillars/octopus/task/package/vfxinfo/vfxinfoConfig.xml"  module="VfxinfoTaskManager" >
+	</task-package>
+</package-list>

@@ -1,9 +1,3 @@
 eclipse.preferences.version=1
-encoding//src/cc/pillars/octopus/OctopusMain.py=utf-8
-encoding//src/cc/pillars/octopus/config/DateBaseConfig.py=utf-8
-encoding//src/cc/pillars/octopus/config/EasyScratch.py=utf-8
-encoding//src/cc/pillars/octopus/config/SiteConfig.py=utf-8
-encoding//src/cc/pillars/octopus/entity/Site.py=utf-8
-encoding//src/cc/pillars/octopus/scratch/BaseScratch.py=utf-8
-encoding//src/cc/pillars/octopus/scratch/VfxinfoScratch.py=utf-8
+encoding//src/cc/pillars/octopus/Starter.py=utf-8
 encoding//src/cc/pillars/octopus/text.py=utf-8

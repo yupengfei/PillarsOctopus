@@ -4,10 +4,7 @@ Created on Dec 9, 2014
 @author: sen
 '''
 
-class Href:
-    '''
-    entity Href
-    '''
+class VfxinfoHref:
 
 
     def __init__(self, classify,href):

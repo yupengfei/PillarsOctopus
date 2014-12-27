@@ -4,9 +4,7 @@ Created on Dec 10, 2014
 @author: sen
 '''
 import threading
-import time
 import urllib.request
-import uuid
 
 
 class BaseScratch:
@@ -26,13 +24,4 @@ class BaseScratch:
         conn.close()
         mutex.release()
         return str
-        #print(conn.read())        
 
-    def getId(self):
-        '''
-        生成以个36位随机数
-        当做ID
-        '''
-        return uuid.uuid1().__str__()
-    def getTime_Long(self):
-        return time.time()

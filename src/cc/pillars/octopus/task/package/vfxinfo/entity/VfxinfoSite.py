@@ -3,12 +3,8 @@ Created on Dec 9, 2014
 
 @author: sen
 '''
-from cc.pillars.octopus.scratch.VfxinfoScratch import VfxinfoScratch
 
-class Site:
-    '''
-    entity Site
-    '''
+class VfxinfoSite:
 
 
     def __init__(self, name,address,hrefList,scratch):

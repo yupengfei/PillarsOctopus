@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site name="vfxinfo" address="http://vfxinfo.net/" type="EasyScratch">
+	<href-list>
+		<href classify="VFXinfo独家">http://vfxinfo.net/category/vfxinfoonly/</href>
+		<href classify="国内新闻">http://vfxinfo.net/category/industrynews/internalnews/</href>
+		<href classify="国外新闻">http://vfxinfo.net/category/industrynews/abroadnews/</href>
+		<href classify="动画幕后">http://vfxinfo.net/category/backofvfx/backofanimation/</href>
+		<href classify="电影幕后">http://vfxinfo.net/category/backofvfx/backoffilm/</href>
+	</href-list>
+	<!-- 映射类名  由哪个类进行抓取 -->
+	<scratch>VfxinfoScratch</scratch>
+</site>
