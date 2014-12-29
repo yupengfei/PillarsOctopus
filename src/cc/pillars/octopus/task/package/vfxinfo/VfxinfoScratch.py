@@ -9,8 +9,15 @@ import urllib.request
 
 from cc.pillars.octopus.dao.BaseDao import BaseDao
 from cc.pillars.octopus.task.package.BaseScratch import BaseScratch
+from cc.pillars.octopus.task.package.vfxinfo.entity.VfxinfoCounter import VfxinfoCounter
+from cc.pillars.octopus.task.package.vfxinfo.tag.analyze.VfxinfoDiv import VfxinfoDiv
+from cc.pillars.octopus.task.package.vfxinfo.tag.analyze.VfxinfoLink import VfxinfoLink
+from cc.pillars.octopus.task.package.vfxinfo.tag.analyze.VfxinfoNavigableString import VfxinfoNavigableString
+from cc.pillars.octopus.task.package.vfxinfo.tag.analyze.VfxinfoObject import VfxinfoObject
+from cc.pillars.octopus.task.package.vfxinfo.tag.analyze.VifxinfoP import VifxinfoP
 from cc.pillars.octopus.util.DateUtil import DateUtil
 from cc.pillars.octopus.util.UUIDUtil import UUIDUtil
+from cc.pillars.octopus.task.package.vfxinfo.tag.analyze.VfxinfoTitle import VfxinfoTitle
 
 
 class VfxinfoScratch(BaseScratch):
@@ -22,7 +29,8 @@ class VfxinfoScratch(BaseScratch):
         '''
         对页面进行抓取
         '''
-        self.page_index=0
+        #self.page_index=0
+        VfxinfoCounter.index=0
         dao=BaseDao()
         
         fp = urllib.request.urlopen(task.href)
@@ -84,137 +92,28 @@ class VfxinfoScratch(BaseScratch):
             return True
         elif child==' ':
             return True
-        
-        if type(child)==NavigableString:
-            if str(child).strip()=='' or  str(child).strip()=='.':
-                return True
-            dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child),self.page_index)))
-            self.page_index+=1
+        #如果是NavigableString 类型
+        elif type(child)==NavigableString:
+            return VfxinfoNavigableString().analyze(child, dates, parent_id)
+        #如果是注释
+        elif type(child)==Comment:
             return True
-        if type(child)==Comment:
+        #如果是换行
+        elif child.name=='br':
             return True
+        #如果是个页面object
+        elif child.name=='object':
+            return VfxinfoObject().analuze(child, dates, parent_id)
+        #如果是个超链接
+        elif child.name=='a':
+            return VfxinfoLink().analyze(child, dates, parent_id)
         #如果这个tag是个div
-        if child.name=='br':
-            return True
-        if child.name=='object' and child.find('embed'):
-            dates.append(("INSERT INTO page_embed(id,parent_id,embed_html,embed_url,page_index) VALUES(%s,%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child),str(child.find('embed')['src']),self.page_index)))
-            self.page_index+=1
-            return True
-        if child.name=='a':
-            dates.append(("INSERT INTO page_href(id,parent_id,page_href_html,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child),self.page_index)))
-            self.page_index+=1
-            return True
-        if child.name=='div':
-            if 'class' in child.attrs:
-                classs=child['class']
-                #判断是否是最后一个DIV标记
-                if len(classs)==2 and classs[0]=='bdsharebuttonbox' and classs[1]=='post-share':
-                    return False
-                if len(classs)==1 and classs[0]=='clear':
-                    return True
-                #if len(classs)==2 and classs[0]=='et-box' and classs[1]=='et-bio':
-                    #etBoxContent=child.find('div',class_='et-box-content')
-                    #if etBoxContent==None:
-                        #return True
-            dates.append(("INSERT INTO page_href(id,parent_id,page_href_html,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child),self.page_index)))
-            self.page_index+=1
-            return True
-        #如果是ul
-        if child.name=='ul':
-            strLi=''
-            for li in child.findAll('li'):
-                strLi+=str(li.string)
-            dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,strLi,self.page_index)))
-            self.page_index+=1
-            return True
+        elif child.name=='div':
+            return VfxinfoDiv().analyze(child, dates, parent_id)        
         #如果是<P>
-        if child.name=='p':
-            img=child.find('img')
-            embed=child.find('embed')
-            if img!=None:
-                for images in child.findAll('img'):
-                    if images.get('data-original')==None and images.get('src')==None:
-                        return True
-                    if images.get('data-original')==None:
-                        image_url=str(images['src'])
-                    else:
-                        image_url=str(images['data-original'])
-                    imageblob=self.downLoadPicture(image_url)
-                    dates.append(("INSERT INTO page_image(id,parent_id,image_blob,image_url,page_index) VALUES(%s,%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,imageblob,image_url,self.page_index)))
-                    self.page_index+=1
-                return True
-            if embed!=None:
-                dates.append(("INSERT INTO page_embed(id,parent_id,embed_html,embed_url,page_index) VALUES(%s,%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(embed),str(embed['src']),self.page_index)))
-                self.page_index+=1
-                return True
-            if child.string==None:
-                if len(child.findAll('b'))!=0:
-                    strP=""
-                    for i in child.findAll('b'):
-                        strP+=str(i.string)
-                    dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,strP,self.page_index)))
-                    self.page_index+=1
-                    return True
-                if len(child.contents)==0:
-                    return True
-            #如果其中是duo个span 且有链接a  把他当做链接
-            if len(child.findAll('span'))!=0:
-                if child.find('a')!=None:
-                    dates.append(("INSERT INTO page_href(id,parent_id,page_href_html,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child),self.page_index)))
-                    self.page_index+=1
-                    return True
-                #其他样式一律当段落 且不进行分割
-                dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child),self.page_index)))
-                self.page_index+=1
-                return True
-            if len(child.contents)==2 and type(child.contents[0])==Tag and child.contents[0].name=='strong' and type(child.contents[1])==NavigableString:
-                strStrong=str(child.contents[0].string)+str(child.contents[1])
-                dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,strStrong,self.page_index)))
-                self.page_index+=1
-                return True
-            if child.find('a')!=None:
-                dates.append(("INSERT INTO page_href(id,parent_id,page_href_html,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child),self.page_index)))
-                self.page_index+=1
-                return True
-            if child.string==None:
-                return True
-            if child.string.strip()=='':
-                return True
-            if child.string.strip()=='.':
-                return True
-            
-            dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child.string),self.page_index)))
-            self.page_index+=1
-        if child.name=='h3':
-            if child.find('strong')!=None and child.find('strong').find('span')!=None:
-                if len(child.contents)==1 and child.string!=None:
-                    dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child.string),self.page_index)))
-                    self.page_index+=1
-                    return True
-                if child.contents[0].name=='strong':
-                    val2=child.strong.span.extract().string
-                    val1=child.string
-                    dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(val2)+str(val1),self.page_index)))
-                    self.page_index+=1
-                    return True
-                val2=str(child.span.strong.span.extract().string)
-                val1=child.string
-                dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(val2)+str(val1),self.page_index)))
-                self.page_index+=1
-                return True
-            if child.find('img')!=None:
-                for images in child.findAll('img'):
-                    if images.get('data-original')==None:
-                        image_url=str(images['src'])
-                    else:
-                        image_url=str(images['data-original'])
-                    imageblob=self.downLoadPicture(image_url)
-                    dates.append(("INSERT INTO page_image(id,parent_id,image_blob,image_url,page_index) VALUES(%s,%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,imageblob,image_url,self.page_index)))
-                    self.page_index+=1
-                return True
-            if child.string==None:
-                return True
-            if child.string.strip()=='.':
-                return True
-            dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child.string),self.page_index)))
-            self.page_index+=1
+        elif child.name=='p':
+            return VifxinfoP().analyze(child, dates, parent_id)
+        elif child.name=='h3':
+            return VfxinfoTitle().analyze(child, dates, parent_id)
+        dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child.string),VfxinfoCounter.index)))
+        VfxinfoCounter.index+=1
