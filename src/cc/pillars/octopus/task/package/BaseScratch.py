@@ -5,6 +5,7 @@ Created on Dec 10, 2014
 '''
 import threading
 import urllib.request
+import urllib.parse
 
 
 class BaseScratch:
@@ -19,7 +20,10 @@ class BaseScratch:
         '''
         mutex = threading.Lock()
         mutex.acquire()
-        conn = urllib.request.urlopen(src)
+        
+        src=src.strip()
+        
+        conn = urllib.request.urlopen(urllib.parse.quote(src, '[:/]'))
         str=conn.read()
         conn.close()
         mutex.release()

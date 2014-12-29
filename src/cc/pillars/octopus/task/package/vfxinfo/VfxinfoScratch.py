@@ -4,13 +4,13 @@ Created on Dec 9, 2014
 @author: sen
 '''
 from bs4 import BeautifulSoup
-from bs4.element import NavigableString, Tag
+from bs4.element import NavigableString, Tag, Comment
 import urllib.request
 
 from cc.pillars.octopus.dao.BaseDao import BaseDao
 from cc.pillars.octopus.task.package.BaseScratch import BaseScratch
-from cc.pillars.octopus.util.UUIDUtil import UUIDUtil
 from cc.pillars.octopus.util.DateUtil import DateUtil
+from cc.pillars.octopus.util.UUIDUtil import UUIDUtil
 
 
 class VfxinfoScratch(BaseScratch):
@@ -56,7 +56,6 @@ class VfxinfoScratch(BaseScratch):
         #此处之前该方法一测试
         #div entry-inner 内容 遍历所有子节点
         #div bdsharebuttonbox post-share 当看到这个div时不在便利
-        
         #获得内容信息        
         entryInner=post.find('div',class_='entry-inner')
         parent_id=UUIDUtil.getId()
@@ -85,11 +84,24 @@ class VfxinfoScratch(BaseScratch):
             return True
         elif child==' ':
             return True
-        #如果这个tag是个div
+        
         if type(child)==NavigableString:
             if str(child).strip()=='' or  str(child).strip()=='.':
                 return True
             dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child),self.page_index)))
+            self.page_index+=1
+            return True
+        if type(child)==Comment:
+            return True
+        #如果这个tag是个div
+        if child.name=='br':
+            return True
+        if child.name=='object' and child.find('embed'):
+            dates.append(("INSERT INTO page_embed(id,parent_id,embed_html,embed_url,page_index) VALUES(%s,%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child),str(child.find('embed')['src']),self.page_index)))
+            self.page_index+=1
+            return True
+        if child.name=='a':
+            dates.append(("INSERT INTO page_href(id,parent_id,page_href_html,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child),self.page_index)))
             self.page_index+=1
             return True
         if child.name=='div':
@@ -100,8 +112,13 @@ class VfxinfoScratch(BaseScratch):
                     return False
                 if len(classs)==1 and classs[0]=='clear':
                     return True
+                #if len(classs)==2 and classs[0]=='et-box' and classs[1]=='et-bio':
+                    #etBoxContent=child.find('div',class_='et-box-content')
+                    #if etBoxContent==None:
+                        #return True
             dates.append(("INSERT INTO page_href(id,parent_id,page_href_html,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child),self.page_index)))
             self.page_index+=1
+            return True
         #如果是ul
         if child.name=='ul':
             strLi=''
@@ -116,6 +133,8 @@ class VfxinfoScratch(BaseScratch):
             embed=child.find('embed')
             if img!=None:
                 for images in child.findAll('img'):
+                    if images.get('data-original')==None and images.get('src')==None:
+                        return True
                     if images.get('data-original')==None:
                         image_url=str(images['src'])
                     else:
@@ -153,6 +172,12 @@ class VfxinfoScratch(BaseScratch):
                 dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,strStrong,self.page_index)))
                 self.page_index+=1
                 return True
+            if child.find('a')!=None:
+                dates.append(("INSERT INTO page_href(id,parent_id,page_href_html,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child),self.page_index)))
+                self.page_index+=1
+                return True
+            if child.string==None:
+                return True
             if child.string.strip()=='':
                 return True
             if child.string.strip()=='.':
@@ -161,6 +186,34 @@ class VfxinfoScratch(BaseScratch):
             dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child.string),self.page_index)))
             self.page_index+=1
         if child.name=='h3':
+            if child.find('strong')!=None and child.find('strong').find('span')!=None:
+                if len(child.contents)==1 and child.string!=None:
+                    dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child.string),self.page_index)))
+                    self.page_index+=1
+                    return True
+                if child.contents[0].name=='strong':
+                    val2=child.strong.span.extract().string
+                    val1=child.string
+                    dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(val2)+str(val1),self.page_index)))
+                    self.page_index+=1
+                    return True
+                val2=str(child.span.strong.span.extract().string)
+                val1=child.string
+                dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(val2)+str(val1),self.page_index)))
+                self.page_index+=1
+                return True
+            if child.find('img')!=None:
+                for images in child.findAll('img'):
+                    if images.get('data-original')==None:
+                        image_url=str(images['src'])
+                    else:
+                        image_url=str(images['data-original'])
+                    imageblob=self.downLoadPicture(image_url)
+                    dates.append(("INSERT INTO page_image(id,parent_id,image_blob,image_url,page_index) VALUES(%s,%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,imageblob,image_url,self.page_index)))
+                    self.page_index+=1
+                return True
+            if child.string==None:
+                return True
             if child.string.strip()=='.':
                 return True
             dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(child.string),self.page_index)))
