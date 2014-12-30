@@ -103,6 +103,11 @@ class VfxinfoAnalyzeDispatch(BaseScratch):
         如果是链接
         '''
         if link.name=="a":
+            if link.find('img')!=None or link.find('embed')!=None or link.find('object')!=None:
+                a_childs=link.contents
+                for child in a_childs:
+                    self.dispatch(dates, child, parent_id)
+                return True
             dates.append(("INSERT INTO page_href(id,parent_id,page_href_html,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(link),VfxinfoCounter.index)))
             VfxinfoCounter.index+=1
             return True
@@ -120,6 +125,11 @@ class VfxinfoAnalyzeDispatch(BaseScratch):
                     #etBoxContent=child.find('div',class_='et-box-content')
                     #if etBoxContent==None:
                         #return True
+        if div.get('class')==None and len(div.contents)!=0:
+            for child in div.contents:
+                self.dispatch(dates, child, parent_id)
+            return True
+        
         dates.append(("INSERT INTO page_href(id,parent_id,page_href_html,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(div),VfxinfoCounter.index)))
         VfxinfoCounter.index+=1
         return True
@@ -141,7 +151,7 @@ class VfxinfoAnalyzeDispatch(BaseScratch):
         '''
         if len(title.contents)==0:
             return True
-        elif title.find('img')!=None:
+        elif title.find('img')!=None or title.find('embed')!=None or title.find('object')!=None:
             #dispatch=VfxinfoAnalyzeDispatch()
             for child_ in title.contents:
                 self.dispatch(dates, child_, parent_id)
@@ -179,6 +189,6 @@ class VfxinfoAnalyzeDispatch(BaseScratch):
             for child in other.contents:
                 self.dispatch(dates, child, parent_id)
             return True
-        dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(other.string),VfxinfoCounter.index)))
+        dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(other),VfxinfoCounter.index)))
         VfxinfoCounter.index+=1
         return True

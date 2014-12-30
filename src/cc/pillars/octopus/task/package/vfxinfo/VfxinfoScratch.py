@@ -25,7 +25,6 @@ class VfxinfoScratch:
         #self.page_index=0
         VfxinfoCounter.index=0
         dao=BaseDao()
-        
         fp = urllib.request.urlopen(task.href)
         mybytes = fp.read()
         htmlString = mybytes.decode("utf8")
