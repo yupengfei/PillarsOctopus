@@ -5,10 +5,11 @@ Created on Dec 29, 2014
 '''
 from cc.pillars.octopus.task.package.BaseScratch import BaseScratch
 from cc.pillars.octopus.task.package.vfxinfo.entity.VfxinfoCounter import VfxinfoCounter
+from cc.pillars.octopus.task.package.vfxinfo.tag.analyze.VfxinfoAnalyzeDispatch import VfxinfoAnalyzeDispatch
 from cc.pillars.octopus.util.UUIDUtil import UUIDUtil
 
 
-class VfxinfoLink(BaseScratch):
+class VfxinfoLink(VfxinfoAnalyzeDispatch):
     '''
     超链接解析
     '''
