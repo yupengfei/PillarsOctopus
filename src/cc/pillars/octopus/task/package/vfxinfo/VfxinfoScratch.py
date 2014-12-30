@@ -7,8 +7,8 @@ from bs4 import BeautifulSoup
 import urllib.request
 
 from cc.pillars.octopus.dao.BaseDao import BaseDao
+from cc.pillars.octopus.task.package.vfxinfo.VfxinfoAnalyzeDispatch import VfxinfoAnalyzeDispatch
 from cc.pillars.octopus.task.package.vfxinfo.entity.VfxinfoCounter import VfxinfoCounter
-from cc.pillars.octopus.task.package.vfxinfo.tag.analyze.VfxinfoAnalyzeDispatch import VfxinfoAnalyzeDispatch
 from cc.pillars.octopus.util.DateUtil import DateUtil
 from cc.pillars.octopus.util.UUIDUtil import UUIDUtil
 

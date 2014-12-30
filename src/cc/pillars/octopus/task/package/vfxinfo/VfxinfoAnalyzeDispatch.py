@@ -129,7 +129,10 @@ class VfxinfoAnalyzeDispatch(BaseScratch):
             for child in div.contents:
                 self.dispatch(dates, child, parent_id)
             return True
-        
+        elif div.get('class')!=None and div.find('img')!=None or div.find('embed')!=None or div.find('object')!=None:
+            for child in div.contents:
+                self.dispatch(dates, child, parent_id)
+            return True
         dates.append(("INSERT INTO page_href(id,parent_id,page_href_html,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(div),VfxinfoCounter.index)))
         VfxinfoCounter.index+=1
         return True
@@ -182,7 +185,7 @@ class VfxinfoAnalyzeDispatch(BaseScratch):
             dates.append(("INSERT INTO page_paragraph(id,parent_id,paragraph,page_index) VALUES(%s,%s,%s,%s)",(UUIDUtil.getId(),parent_id,str(other.string),VfxinfoCounter.index)))
             VfxinfoCounter.index+=1
             return True
-        elif type(other)==Tag and other.name=='span' or other.name=='strong':
+        elif type(other)==Tag and other.name=='span' or other.name=='strong' or other.name=='blockquote':
             if len(other.contents)==0:
                 return True
             #dispatch=VfxinfoAnalyzeDispatch()
