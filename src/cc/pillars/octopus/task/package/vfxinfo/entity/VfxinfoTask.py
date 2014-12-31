@@ -10,9 +10,10 @@ class VfxinfoTask:
     '''
 
 
-    def __init__(self, taskId,href):
+    def __init__(self, taskId,href,classify):
         '''
         Constructor
         '''
         self.taskId=taskId
         self.href=href
+        self.classify=classify

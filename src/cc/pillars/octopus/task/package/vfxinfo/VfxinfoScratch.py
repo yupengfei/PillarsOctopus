@@ -60,7 +60,7 @@ class VfxinfoScratch:
         entryInner=post.find('div',class_='entry-inner')
         parent_id=UUIDUtil.getId()
         dates=[]
-        dates.append(("INSERT INTO page_info(id,url,belongs_site,title,promulgator,issues_time,scratch_time,task_id) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",(parent_id,task.href,taskPackage.siteId,title,promulgator,issuesTime,DateUtil.getTime_Long(),task.taskId)))
+        dates.append(("INSERT INTO page_info(id,url,belongs_site,title,promulgator,issues_time,scratch_time,task_id,classify) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)",(parent_id,task.href,taskPackage.siteId,title,promulgator,issuesTime,DateUtil.getTime_Long(),task.taskId,task.classify)))
         dates.append(("UPDATE task_list SET state=%s WHERE id=%s",('0',task.taskId)))
         #遍历所有子节点并区分类型
         duspatch=VfxinfoAnalyzeDispatch()        

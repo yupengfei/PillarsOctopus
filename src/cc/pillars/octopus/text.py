@@ -25,5 +25,5 @@ if __name__ == '__main__':
     dao.createConnect()
     taskList=dao.doSelect("SELECT * FROM task_list WHERE state='1'")
     for i in taskList:
-        task=VfxinfoTask(i[0],i[1])
+        task=VfxinfoTask(i[0],i[1],i[4])
         scratch.doScratch(task, package)

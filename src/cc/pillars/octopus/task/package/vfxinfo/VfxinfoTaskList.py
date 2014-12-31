@@ -23,7 +23,9 @@ class VfxinfoTaskList:
         '''
         #任务列表
         list=[]
+        hashList=[]
         self.list=list
+        self.hashList=hashList
         self.taskPackage=taskPackage
         #生成任务列表    
         for href in site.hrefList:
@@ -60,8 +62,9 @@ class VfxinfoTaskList:
                 if len(pageTask)!=0:
                     hasTask=False
                     break
-                if self.list.count(str(aHref))==0:
-                    self.list.append(str(aHref))
+                if self.hashList.count(str(aHref))==0:
+                    self.hashList.append(str(aHref))
+                    self.list.append((str(aHref),href.classify))
                 
             if hasTask==False:
                 break
@@ -97,10 +100,10 @@ class VfxinfoTaskList:
         data=[]
         taskList=[]
         if len(self.list)!=0:
-            for task in self.list:
+            for task,classify in self.list:
                 taskId=UUIDUtil.getId()
-                taskList.append(VfxinfoTask(taskId,task))
-                data.append(("INSERT INTO task_list(id,href,site_id) VALUES(%s,%s,%s)",(taskId,task,self.taskPackage.siteId)))
+                taskList.append(VfxinfoTask(taskId,task,classify))
+                data.append(("INSERT INTO task_list(id,href,site_id,classify) VALUES(%s,%s,%s,%s)",(taskId,task,self.taskPackage.siteId,classify)))
             self.taskList=taskList 
             dao=BaseDao()
             dao.createConnect()
