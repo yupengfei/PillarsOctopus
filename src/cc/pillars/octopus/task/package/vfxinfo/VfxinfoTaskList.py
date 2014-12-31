@@ -60,7 +60,8 @@ class VfxinfoTaskList:
                 if len(pageTask)!=0:
                     hasTask=False
                     break
-                self.list.append(str(aHref))
+                if self.list.count(str(aHref))==0:
+                    self.list.append(str(aHref))
                 
             if hasTask==False:
                 break

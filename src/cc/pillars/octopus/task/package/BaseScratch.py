@@ -22,8 +22,7 @@ class BaseScratch:
         mutex.acquire()
         
         src=src.strip()
-        
-        conn = urllib.request.urlopen(urllib.parse.quote(src, '[:/]'))
+        conn = urllib.request.urlopen(urllib.parse.quote(src, '[:/?=]'))
         str=conn.read()
         conn.close()
         mutex.release()

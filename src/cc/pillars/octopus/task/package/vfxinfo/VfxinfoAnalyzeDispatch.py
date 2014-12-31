@@ -38,9 +38,11 @@ class VfxinfoAnalyzeDispatch(BaseScratch):
         #如果是注释
         elif type(child)==Comment:
             return True
-        #如果是换行
+        elif child.name=='wbr' and len(child.contents)==0:
+            return True
         elif child.name=='noscript':
             return True
+        #如果是换行
         elif child.name=='br':
             return True
         #如果是个页面object

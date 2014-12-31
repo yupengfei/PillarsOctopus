@@ -21,7 +21,7 @@ if __name__ == '__main__':
     scratch=VfxinfoScratch()
     #scratch.doScratch(task,package)
     
-    dao=BaseDao();
+    dao=BaseDao()
     dao.createConnect()
     taskList=dao.doSelect("SELECT * FROM task_list WHERE state='1'")
     for i in taskList:
